@@ -3,90 +3,101 @@
  Title="Codex Context Monitor" Width="254" Height="26" WindowStyle="None"
  ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
  Topmost="True" ShowInTaskbar="False" ShowActivated="False"
- FontFamily="Segoe UI, Microsoft YaHei UI" Foreground="#EEEEF0"
- UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display">
+ FontFamily="Segoe UI, Microsoft YaHei UI" Foreground="#ECECEF"
+ Typography.NumeralAlignment="Tabular" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display">
  <Window.Resources>
   <Style TargetType="Button">
    <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="#DEDEE3"/>
-   <Setter Property="BorderThickness" Value="0"/><Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="BorderBrush" Value="Transparent"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/>
    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
-    <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonBorder" Property="Background" Value="#35353A"/></Trigger></ControlTemplate.Triggers>
+    <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonBorder" Property="Background" Value="#35353A"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#85858F"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonBorder" Property="Background" Value="#393940"/></Trigger></ControlTemplate.Triggers>
    </ControlTemplate></Setter.Value></Setter>
   </Style>
  </Window.Resources>
  <Grid>
   <Border Name="Bar" Width="254" Height="26" CornerRadius="5" Padding="4,0">
-   <Border.Style><Style TargetType="Border"><Setter Property="Opacity" Value="0.72"/><Setter Property="Background" Value="Transparent"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Opacity" Value="1"/><Setter Property="Background" Value="#29292D"/></Trigger></Style.Triggers></Style></Border.Style>
+   <Border.Style><Style TargetType="Border"><Setter Property="Opacity" Value="0.78"/><Setter Property="Background" Value="Transparent"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Opacity" Value="1"/><Setter Property="Background" Value="#27272C"/></Trigger></Style.Triggers></Style></Border.Style>
    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="10"/><ColumnDefinition/></Grid.ColumnDefinitions>
     <TextBlock Name="DragHandle" Text="⠿" FontSize="12" FontFamily="Segoe UI Symbol" Foreground="#8A8A92" Opacity="0" VerticalAlignment="Center" Cursor="SizeAll" ToolTip="拖动调整位置"/>
     <Button Name="ExpandButton" Grid.Column="1" HorizontalContentAlignment="Stretch" Padding="4,0">
-     <Grid Width="224"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="84"/><ColumnDefinition Width="122"/></Grid.ColumnDefinitions>
+     <Grid Width="224"><Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="70"/><ColumnDefinition Width="1"/><ColumnDefinition/></Grid.ColumnDefinitions>
       <Grid Name="RingHost" Width="14" Height="14" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-      <TextBlock Name="SpeedSmall" Grid.Column="1" Text="— t/s" FontSize="11" Foreground="#ADADB4" VerticalAlignment="Center" Margin="4,0,0,0"/>
-      <TextBlock Name="CacheSmall" Grid.Column="2" Text="缓存 —" FontSize="11" Foreground="#ADADB4" VerticalAlignment="Center"/>
+      <TextBlock Name="SpeedSmall" Grid.Column="1" Text="— t/s" FontSize="11" Foreground="#BDBDC6" VerticalAlignment="Center" Margin="4,0,0,0"/>
+      <Border Grid.Column="2" Height="10" Background="#56565F" VerticalAlignment="Center"/>
+      <TextBlock Name="CacheSmall" Grid.Column="3" Margin="10,0,0,0" Text="缓存 —" FontSize="11" Foreground="#BDBDC6" VerticalAlignment="Center"/>
      </Grid>
     </Button>
    </Grid>
   </Border>
   <Popup Name="DetailsPopup" Placement="Top" PlacementTarget="{Binding ElementName=Bar}" HorizontalOffset="-94" VerticalOffset="-8" AllowsTransparency="True" StaysOpen="False" PopupAnimation="Fade" Focusable="True">
-   <Border Name="Details" Width="348" Background="#252527" BorderBrush="#424247" BorderThickness="1" CornerRadius="12" Padding="18,16">
+   <Border Name="Details" Width="348" Background="#242426" BorderBrush="#3B3B42" BorderThickness="1" CornerRadius="12" Padding="18,16">
     <StackPanel>
      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
-      <TextBlock Name="PercentLarge" Text="—" FontSize="31" FontWeight="Bold"/>
+      <TextBlock Name="PercentLarge" Text="—" FontSize="30" FontWeight="SemiBold"/>
       <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="8,0,0,0">
-       <TextBlock Name="LabelContextWindow" Text="Context window" Foreground="#92929B" FontSize="10" HorizontalAlignment="Right"/>
-       <TextBlock Name="UsageText" Text="—" Foreground="#ADADB4" FontSize="11" Margin="0,3,0,0" HorizontalAlignment="Right"/>
+       <TextBlock Name="LabelContextWindow" Text="Context window" Foreground="#A3A3AE" FontSize="10.5" HorizontalAlignment="Right"/>
+       <TextBlock Name="UsageText" Text="—" Foreground="#BDBDC6" FontSize="11" Margin="0,3,0,0" HorizontalAlignment="Right"/>
       </StackPanel>
      </Grid>
-     <Grid Height="6" Margin="0,7,0,12">
-      <Border Background="#414145" CornerRadius="3"/>
+     <Grid Height="5" Margin="0,8,0,10">
+      <Border Background="#3B3B41" CornerRadius="3"/>
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-       <Border Name="CachedSegment" Width="0" Background="#20BF9F"/>
-       <Border Name="NewSegment" Width="0" Background="#F4A72B"/>
-       <Border Name="OutputSegment" Width="0" Background="#A68BFA"/>
+       <Border Name="CachedSegment" Width="0" Background="#58C3AA"/>
+       <Border Name="NewSegment" Width="0" Background="#D5AE74"/>
+       <Border Name="OutputSegment" Width="0" Background="#A193CE"/>
       </StackPanel>
      </Grid>
-     <Grid Height="27"><Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions>
-      <Ellipse Fill="#20BF9F" Width="7" Height="7" HorizontalAlignment="Left"/>
+     <Grid Height="24"><Grid.ColumnDefinitions><ColumnDefinition Width="14"/><ColumnDefinition/><ColumnDefinition Width="74"/></Grid.ColumnDefinitions>
+      <Ellipse Fill="#58C3AA" Width="6" Height="6" HorizontalAlignment="Left"/>
       <TextBlock Name="LabelCachedInput" Grid.Column="1" Text="Cached input" VerticalAlignment="Center" FontSize="12"/>
-      <TextBlock Name="CachedValue" Grid.Column="2" Text="—" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#ADADB4" FontSize="12"/>
+      <TextBlock Name="CachedValue" Grid.Column="2" Text="—" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#BDBDC6" FontSize="12"/>
      </Grid>
-     <Grid Height="27"><Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions>
-      <Ellipse Fill="#F4A72B" Width="7" Height="7" HorizontalAlignment="Left"/>
+     <Grid Height="24"><Grid.ColumnDefinitions><ColumnDefinition Width="14"/><ColumnDefinition/><ColumnDefinition Width="74"/></Grid.ColumnDefinitions>
+      <Ellipse Fill="#D5AE74" Width="6" Height="6" HorizontalAlignment="Left"/>
       <TextBlock Name="LabelNewInput" Grid.Column="1" Text="Uncached input" VerticalAlignment="Center" FontSize="12"/>
-      <TextBlock Name="NewValue" Grid.Column="2" Text="—" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#ADADB4" FontSize="12"/>
+      <TextBlock Name="NewValue" Grid.Column="2" Text="—" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#BDBDC6" FontSize="12"/>
      </Grid>
-     <Grid Height="27"><Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions>
-      <Ellipse Fill="#A68BFA" Width="7" Height="7" HorizontalAlignment="Left"/>
+     <Grid Height="24"><Grid.ColumnDefinitions><ColumnDefinition Width="14"/><ColumnDefinition/><ColumnDefinition Width="74"/></Grid.ColumnDefinitions>
+      <Ellipse Fill="#A193CE" Width="6" Height="6" HorizontalAlignment="Left"/>
       <TextBlock Name="LabelOutput" Grid.Column="1" Text="Output (incl. reasoning)" VerticalAlignment="Center" FontSize="12"/>
-      <TextBlock Name="OutputValue" Grid.Column="2" Text="—" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#ADADB4" FontSize="12"/>
+      <TextBlock Name="OutputValue" Grid.Column="2" Text="—" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#BDBDC6" FontSize="12"/>
      </Grid>
-     <DockPanel Margin="16,5,0,12"><TextBlock Name="LabelRemaining" Text="Remaining" FontSize="11" Foreground="#92929B"/><TextBlock Name="RemainingValue" Text="—" HorizontalAlignment="Right" FontSize="11" Foreground="#92929B"/></DockPanel>
-     <Grid Margin="0,0,0,13"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
-      <TextBlock Name="SpeedLarge" Text="— t/s" FontSize="19" FontWeight="SemiBold" ToolTip="最近响应的估算均速，含思考 Token；随用量记录更新。"/>
-      <TextBlock Name="CacheLarge" Grid.Column="1" Text="—" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#70D4BE"/>
+     <Grid Height="24" Margin="14,0,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="74"/></Grid.ColumnDefinitions>
+      <TextBlock Name="LabelRemaining" Text="Remaining" FontSize="11" Foreground="#A3A3AE" VerticalAlignment="Center"/>
+      <TextBlock Name="RemainingValue" Grid.Column="1" Text="—" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="#A3A3AE"/>
      </Grid>
-     <Border BorderBrush="#414145" BorderThickness="0,1,0,0" Padding="0,12,0,0">
+     <Grid Margin="0,9,0,13"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="24"/><ColumnDefinition/></Grid.ColumnDefinitions>
       <StackPanel>
-       <Grid Margin="0,0,0,5"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="70"/><ColumnDefinition Width="76"/></Grid.ColumnDefinitions>
-        <TextBlock Name="LabelModelUsage" Text="Model usage" FontSize="10" Foreground="#9C9CA5"/>
-        <TextBlock Grid.Column="1" Text="Tokens" HorizontalAlignment="Right" FontSize="10" Foreground="#9C9CA5"/>
-        <TextBlock Grid.Column="2" Text="USD" HorizontalAlignment="Right" FontSize="10" Foreground="#9C9CA5"/>
+       <TextBlock Name="LabelResponseSpeed" Text="Response speed" FontSize="10.5" Foreground="#A3A3AE"/>
+       <TextBlock Name="SpeedLarge" Text="— t/s" FontSize="19" FontWeight="SemiBold" Margin="0,2,0,0"/>
+      </StackPanel>
+      <Border Grid.Column="1" Width="1" Height="29" Background="#38383E" VerticalAlignment="Center"/>
+      <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+       <TextBlock Name="LabelCacheHitRate" Text="Cache hit rate" FontSize="10.5" Foreground="#A3A3AE" HorizontalAlignment="Right"/>
+       <TextBlock Name="CacheLarge" Text="—" FontSize="19" FontWeight="SemiBold" Foreground="#58C3AA" HorizontalAlignment="Right" Margin="0,2,0,0"/>
+      </StackPanel>
+     </Grid>
+     <Border BorderBrush="#3B3B41" BorderThickness="0,1,0,0" Padding="0,12,0,0">
+      <StackPanel>
+       <Grid Margin="0,0,0,5"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="70"/><ColumnDefinition Width="78"/></Grid.ColumnDefinitions>
+        <TextBlock Name="LabelModelUsage" Text="Model usage" FontSize="10.5" Foreground="#A3A3AE"/>
+        <TextBlock Grid.Column="1" Text="Tokens" HorizontalAlignment="Right" FontSize="10.5" Foreground="#A3A3AE"/>
+        <TextBlock Grid.Column="2" Text="USD" HorizontalAlignment="Right" FontSize="10.5" Foreground="#A3A3AE"/>
        </Grid>
-       <ScrollViewer MaxHeight="156" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+       <ScrollViewer MaxHeight="140" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <ItemsControl Name="ModelsList"><ItemsControl.ItemTemplate><DataTemplate>
-         <Grid Height="29" ToolTip="{Binding tooltip}"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="70"/><ColumnDefinition Width="76"/></Grid.ColumnDefinitions>
-          <TextBlock Text="{Binding name}" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-          <TextBlock Grid.Column="1" Text="{Binding tokens}" FontSize="11" Foreground="#BDBDC5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-          <TextBlock Grid.Column="2" Text="{Binding cost}" FontSize="11" Foreground="#BDBDC5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+         <Grid Height="28" ToolTip="{Binding tooltip}"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="70"/><ColumnDefinition Width="78"/></Grid.ColumnDefinitions>
+          <TextBlock Text="{Binding name}" FontSize="11.5" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Grid.Column="1" Text="{Binding tokens}" FontSize="11.5" Foreground="#BDBDC5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="2" Text="{Binding cost}" FontSize="11.5" Foreground="#BDBDC5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
          </Grid>
         </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
        </ScrollViewer>
-       <TextBlock Name="EmptyModels" Text="Waiting for usage" Foreground="#92929B" FontSize="11" Margin="0,5,0,6"/>
+       <TextBlock Name="EmptyModels" Text="Waiting for usage" Foreground="#A3A3AE" FontSize="11" Margin="0,5,0,6"/>
        <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-        <Button Name="PriceSource" HorizontalAlignment="Left" Padding="0,3"><TextBlock Name="PriceLabel" Text="API estimate" FontSize="10" Foreground="#92929B"/></Button>
+        <Button Name="PriceSource" HorizontalAlignment="Left" Padding="0,3"><TextBlock Name="PriceLabel" Text="API estimate" FontSize="10.5" Foreground="#A3A3AE"/></Button>
         <TextBlock Name="TotalCost" Grid.Column="1" Text="—" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
        </Grid>
       </StackPanel>

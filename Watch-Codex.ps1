@@ -1,7 +1,7 @@
-$ErrorActionPreference='Stop'
+﻿$ErrorActionPreference='Stop'
 $runtime=Join-Path $env:LOCALAPPDATA 'CodexContextMonitor'
 [void][IO.Directory]::CreateDirectory($runtime)
-. (Join-Path $PSScriptRoot 'Lifecycle.ps1')
+. (Join-Path $PSScriptRoot 'Settings.ps1')
 $created=$false
 $watchMutex=New-Object Threading.Mutex($true,'Local\CodexContextMonitor-watcher-v1',[ref]$created)
 if (-not $created) {$watchMutex.Dispose();exit 0}

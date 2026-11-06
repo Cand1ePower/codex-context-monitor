@@ -1,4 +1,4 @@
-$ErrorActionPreference='Stop'
+﻿$ErrorActionPreference='Stop'
 $runtime=Join-Path $env:LOCALAPPDATA 'CodexContextMonitor'
 $installDirectory=Join-Path $runtime 'app'
 [void][IO.Directory]::CreateDirectory($runtime)
@@ -12,14 +12,9 @@ foreach ($item in $old) {
  if ($process -and -not $process.WaitForExit(8000)) {throw 'The old monitor did not exit. Close it before installing.'}
 }
 [void][IO.Directory]::CreateDirectory($installDirectory)
-$files=@('Overlay.ps1','OverlayRuntime.ps1','Overlay.xaml','Settings.ps1','Lifecycle.ps1','Watch-Codex.ps1','Launch.vbs','Quit.ps1','Uninstall.ps1','monitor.py','active_chat.py','billing.py','defaults.json','pricing.json')
+$files=@('Overlay.ps1','Overlay.xaml','Settings.ps1','Watch-Codex.ps1','Launch.vbs','Quit.ps1','Uninstall.ps1','monitor.py','active_chat.py','billing.py','locales.json','pricing.json')
 foreach ($name in $files) {
  $source=Join-Path $PSScriptRoot $name;$target=Join-Path $installDirectory $name
- if ([IO.Path]::GetFullPath($source) -ne [IO.Path]::GetFullPath($target)) {Copy-Item -LiteralPath $source -Destination $target -Force}
-}
-[void][IO.Directory]::CreateDirectory((Join-Path $installDirectory 'locales'))
-foreach ($name in @('zh-CN.json','en-US.json')) {
- $source=Join-Path $PSScriptRoot ('locales/'+$name);$target=Join-Path $installDirectory ('locales/'+$name)
  if ([IO.Path]::GetFullPath($source) -ne [IO.Path]::GetFullPath($target)) {Copy-Item -LiteralPath $source -Destination $target -Force}
 }
 $startupPath=Join-Path ([Environment]::GetFolderPath('Startup')) 'Codex Context Monitor.vbs'

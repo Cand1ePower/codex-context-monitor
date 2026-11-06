@@ -1,6 +1,6 @@
-function Get-MonitorSettings {
+﻿function Get-MonitorSettings {
  $settings=@{python=$null;language='auto'}
- foreach ($path in @((Join-Path $PSScriptRoot 'defaults.json'),(Join-Path $runtime 'settings.json'))) {
+ foreach ($path in @((Join-Path $runtime 'settings.json'))) {
   if (Test-Path -LiteralPath $path) {
    try { $data=Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json
     foreach ($key in @('python','language')) {if ($null -ne $data.$key) {$settings[$key]=$data.$key}}
@@ -29,4 +29,16 @@ function Find-MonitorPython($settings) {
 function Resolve-MonitorLanguage([string]$requested,[string]$systemLanguage) {
  if ($requested -and $requested -ne 'auto') {return $(if ($requested -like 'zh*') {'zh-CN'} else {'en-US'})}
  return $(if ($systemLanguage -like 'zh*') {'zh-CN'} else {'en-US'})
+}
+
+function Get-MonitorLifecycleAction([bool]$codexPresent,[bool]$overlayRunning,[bool]$stopping) {
+ if ($stopping) {return 'exit'}
+ if ($codexPresent -and -not $overlayRunning) {return 'start'}
+ if (-not $codexPresent -and $overlayRunning) {return 'stop'}
+ return 'wait'
+}
+function Get-CodexWindowProcess {
+ Get-Process -Name ChatGPT,Codex -ErrorAction SilentlyContinue |
+  Where-Object {$_.MainWindowHandle -ne 0 -and $_.Path -match 'OpenAI[.\\].*Codex|OpenAI.Codex|[\\/]Codex[\\/]'} |
+  Select-Object -First 1
 }
