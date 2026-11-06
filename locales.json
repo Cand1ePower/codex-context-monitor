@@ -19,8 +19,7 @@
     "Calculating": "Calculating…",
     "Compacted": "Waiting for usage after compaction",
     "Interrupted": "Usage reader disconnected",
-    "RestartRequired": "Usage reader stopped; restart the monitor",
-    "Stale": "Usage reader disconnected; showing the last record",
+    "Stale": "Automatically reconnecting; showing the last record",
     "CurrentChat": "Current chat: {0}\nClick to expand; click outside to close",
     "Drag": "Drag to reposition",
     "SpeedHelp": "Estimated speed of the last response, including reasoning tokens. Updates with usage records.",
@@ -29,7 +28,8 @@
     "EstimateHelp": "Estimated API token cost in USD. Prices checked on {0}.\nAssumes Standard when the service tier is absent, and 30-minute cache retention when unspecified.\nIncludes repeated inputs, caching and reasoning outputs. Excludes tool charges, subscriptions and separate child chats.\nClick to view official pricing.",
     "UnknownModel": "Unknown model",
     "MissingPython": "Python 3 was not found. Install Python or set the python path in settings.json.",
-    "ResponseSpeed": "Response speed"
+    "ResponseSpeed": "Response speed",
+    "Recovering": "Reconnecting…"
   },
   "zh-CN": {
     "ContextWindow": "上下文窗口",
@@ -51,8 +51,7 @@
     "Calculating": "统计中…",
     "Compacted": "等待压缩后的新记录",
     "Interrupted": "数据读取中断",
-    "RestartRequired": "数据读取中断，请重新启动",
-    "Stale": "数据读取中断，显示最后记录",
+    "Stale": "正在自动恢复，显示最后记录",
     "CurrentChat": "当前聊天：{0}\n点击展开；点击弹窗外收起",
     "Drag": "拖动调整位置",
     "SpeedHelp": "最近响应的估算均速，含思考 Token；随用量记录更新。",
@@ -61,6 +60,7 @@
     "EstimateHelp": "按官方 API Token 价格估算，美元；价格核对于 {0}。\n未记录服务档位时按 Standard；未记录缓存保留期时按 30 分钟。\n包含重复输入、缓存和思考输出；不含工具费用、订阅费用及独立子聊天。\n点击查看官方定价。",
     "UnknownModel": "未知模型",
     "MissingPython": "找不到 Python 3，请先安装 Python 或在 settings.json 指定 python 路径。",
-    "ResponseSpeed": "响应速率"
+    "ResponseSpeed": "响应速率",
+    "Recovering": "正在恢复读取…"
   }
 }

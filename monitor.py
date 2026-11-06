@@ -249,12 +249,14 @@ def parent_alive(pid):
 
 def atomic_json(path, value):
     tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
     try:
+        tmp.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, path)
-    except PermissionError:
-        # A UI read can briefly hold the file on Windows; retry next tick.
-        pass
+        return True
+    except OSError:
+        # Both the temporary write and replacement can hit sharing violations
+        # on Windows. Leave the last complete state intact and retry next tick.
+        return False
 
 
 def run(args):

@@ -93,6 +93,11 @@ $script:forceVisibleUntil = [datetime]::MinValue
 $script:popupClosedAt = [datetime]::MinValue
 $script:modelSignature = ''
 $script:worker = $null
+$script:readerStartedMs = 0.0
+$script:nextReaderStartMs = 0.0
+$script:readerFailures = 0
+$script:readerErrorTask = $null
+$script:recovering = $false
 $script:compactWidth = 254.0
 $script:compactHeight = 26.0
 
@@ -159,8 +164,8 @@ function Update-Age {
  if ($RenderPreview) {return}
  $data = $script:lastState
  if ($null -eq $data) { return }
- if (([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()-$data.heartbeat_ms) -gt 6000) {
-  $ui.UsageText.Text = L 'Interrupted'
+ if ($script:recovering -or ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()-$data.heartbeat_ms) -gt 6000) {
+  $ui.UsageText.Text = L 'Recovering'
   $ui.ExpandButton.ToolTip = L 'Stale'
  }
 }
@@ -187,7 +192,9 @@ function Follow-Owner {
   if ($helper.Owner -ne $script:ownerHandle) { $helper.Owner=$script:ownerHandle }
  }
  if ($now -gt $script:nextOwnerWrite) {
-  @{process_id=$script:ownerPid;window_handle=$script:ownerHandle.ToInt64();heartbeat_ms=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json -Compress | Set-Content -LiteralPath (Join-Path $runtime 'owner.json') -Encoding UTF8
+  try {
+   @{process_id=$script:ownerPid;window_handle=$script:ownerHandle.ToInt64();heartbeat_ms=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json -Compress | Set-Content -LiteralPath (Join-Path $runtime 'owner.json') -Encoding UTF8
+  } catch {} # A brief owner-file lock must not skip the rest of the UI tick.
   $script:nextOwnerWrite=$now.AddSeconds(1)
  }
  if ($script:ownerHandle -eq [IntPtr]::Zero -or -not [ContextMeter.Native]::IsWindow($script:ownerHandle) -or [ContextMeter.Native]::IsIconic($script:ownerHandle)) {
@@ -211,6 +218,80 @@ function Follow-Owner {
   }
  }
  if (-not $window.IsVisible) {$window.Show()}
+}
+
+function Write-ReaderLog([string]$message) {
+ try {
+  $path=Join-Path $runtime 'reader-recovery.log'
+  $previous=if (Test-Path -LiteralPath $path) {[IO.File]::ReadAllText($path)} else {''}
+  $text=$previous+[DateTimeOffset]::UtcNow.ToString('o')+' '+$message+[Environment]::NewLine
+  if ($text.Length -gt 65536) {$text=$text.Substring($text.Length-49152)}
+  [IO.File]::WriteAllText($path,$text,(New-Object Text.UTF8Encoding($false)))
+ } catch {}
+}
+function Start-Reader {
+ try {
+  $startInfo=New-Object Diagnostics.ProcessStartInfo
+  $startInfo.FileName=$script:readerExecutable
+  $startInfo.Arguments='"'+(Join-Path $PSScriptRoot 'monitor.py')+'" --runtime "'+$runtime+'" --parent-pid '+$PID
+  $startInfo.UseShellExecute=$false;$startInfo.CreateNoWindow=$true;$startInfo.WindowStyle=[Diagnostics.ProcessWindowStyle]::Hidden
+  $startInfo.RedirectStandardError=$true;$startInfo.StandardErrorEncoding=[Text.Encoding]::UTF8
+  $startInfo.EnvironmentVariables['PYTHONIOENCODING']='utf-8'
+  $script:worker=[Diagnostics.Process]::Start($startInfo)
+  $script:readerErrorTask=$script:worker.StandardError.ReadToEndAsync()
+  $script:readerStartedMs=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+  $script:nextReaderStartMs=0
+  Write-ReaderLog ('started pid='+$script:worker.Id)
+ } catch {
+  $script:worker=$null;$script:recovering=$true;$script:readerFailures++
+  $delay=Get-MonitorReaderRetrySeconds $script:readerFailures
+  $script:nextReaderStartMs=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()+$delay*1000
+  Write-ReaderLog ('start-failed retry_seconds='+$delay+' '+$_.Exception.Message)
+ }
+}
+function Stop-Reader([string]$reason) {
+ if ($null -eq $script:worker) {return $true}
+ try {
+  $readerPid=$script:worker.Id
+  if (-not $script:worker.HasExited) {$script:worker.Kill()}
+  if (-not $script:worker.WaitForExit(1000)) {return $false}
+  $exitCode=$script:worker.ExitCode
+  $errorText=''
+  try {
+   if ($script:readerErrorTask -and $script:readerErrorTask.Wait(100)) {
+    $errorText=[string]$script:readerErrorTask.Result
+    if ($errorText.Length -gt 8192) {$errorText=$errorText.Substring($errorText.Length-8192)}
+   }
+  } catch {$errorText='stderr unavailable: '+$_.Exception.Message}
+  Write-ReaderLog ($reason+' pid='+$readerPid+' exit_code='+$exitCode+' '+$errorText)
+  $script:worker.Dispose();$script:worker=$null;$script:readerErrorTask=$null
+  return $true
+ } catch {
+  Write-ReaderLog ('stop-failed '+$_.Exception.Message)
+  return $false
+ }
+}
+function Ensure-Reader {
+ if ($script:closed) {return}
+ $nowMs=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+ $running=$null -ne $script:worker
+ $exited=$running -and $script:worker.HasExited
+ $heartbeatMs=[double]$script:lastState.heartbeat_ms
+ $action=Get-MonitorReaderAction $running $exited $nowMs $script:readerStartedMs $heartbeatMs $script:nextReaderStartMs
+ if ($action -eq 'restart') {
+  $script:recovering=$true
+  $reason=if ($exited) {'exited'} else {'heartbeat-timeout'}
+  if (Stop-Reader $reason) {
+   $script:readerFailures++
+   $delay=Get-MonitorReaderRetrySeconds $script:readerFailures
+   $script:nextReaderStartMs=$nowMs+$delay*1000
+   Write-ReaderLog ('retry_seconds='+$delay)
+  } else {$script:nextReaderStartMs=$nowMs+5000}
+ } elseif ($action -eq 'start') {Start-Reader}
+ elseif ($running -and -not $exited -and $heartbeatMs -ge $script:readerStartedMs -and $nowMs-$heartbeatMs -le 6000) {
+  $script:recovering=$false
+  if ($nowMs-$script:readerStartedMs -ge 60000) {$script:readerFailures=0}
+ }
 }
 
 if ($RenderPreview) {
@@ -256,28 +337,29 @@ $ui.DragHandle.Add_MouseLeftButtonDown({
 })
 $python=Find-MonitorPython $settings
 if (-not $python) {throw (L 'MissingPython')}
-$startInfo=New-Object Diagnostics.ProcessStartInfo
-$startInfo.FileName=$python
-$startInfo.Arguments='"'+(Join-Path $PSScriptRoot 'monitor.py')+'" --runtime "'+$runtime+'" --parent-pid '+$PID
-$startInfo.UseShellExecute=$false;$startInfo.CreateNoWindow=$true;$startInfo.WindowStyle=[Diagnostics.ProcessWindowStyle]::Hidden
-$script:worker=[Diagnostics.Process]::Start($startInfo)
+$script:readerExecutable=$python
+if ((Split-Path $python -Leaf) -ieq 'pythonw.exe') {
+ $consolePython=Join-Path (Split-Path $python) 'python.exe'
+ if (Test-Path -LiteralPath $consolePython) {$script:readerExecutable=$consolePython}
+}
+Start-Reader
 $timer=New-Object Windows.Threading.DispatcherTimer
 $timer.Interval=[timespan]::FromMilliseconds(500)
 $timer.Add_Tick({
  try {
   if (Test-Path -LiteralPath $stopPath) {$window.Close();return}
   if ($script:ownerPid -gt 0 -and -not (Get-Process -Id $script:ownerPid -ErrorAction SilentlyContinue)) {$window.Close();return}
+  Ensure-Reader
   Follow-Owner
   $stateFile=Get-Item -LiteralPath (Join-Path $runtime 'state.json') -ErrorAction SilentlyContinue
   if ($null -ne $stateFile -and $stateFile.LastWriteTimeUtc -ne $script:lastStateWrite) {
    try {Set-Usage (Get-Content -LiteralPath $stateFile.FullName -Raw -Encoding UTF8 | ConvertFrom-Json);$script:lastStateWrite=$stateFile.LastWriteTimeUtc} catch {throw}
   } else {Update-Age}
-  if ($script:worker.HasExited) {$ui.UsageText.Text=L 'RestartRequired'}
  } catch {$_.Exception.Message | Set-Content -LiteralPath (Join-Path $runtime 'timer-error.txt') -Encoding UTF8}
 })
 $window.Add_Closed({
  $script:closed=$true;$ui.DetailsPopup.IsOpen=$false;$timer.Stop()
- if ($null -ne $script:worker -and -not $script:worker.HasExited) {$script:worker.Kill()}
+ [void](Stop-Reader 'overlay-closed')
  $mutex.ReleaseMutex();$mutex.Dispose();[Windows.Threading.Dispatcher]::CurrentDispatcher.InvokeShutdown()
 })
 $window.Show();Follow-Owner;$timer.Start();[Windows.Threading.Dispatcher]::Run()

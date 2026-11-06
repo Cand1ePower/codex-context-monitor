@@ -54,11 +54,22 @@ class ActiveChat:
             return self.selection()
         now = time.monotonic()
         if now >= self.next_scan:
-            candidates = sorted(self.root.glob(f'*/*/*/*-{pid}-t0-*.log'), key=lambda p:p.stat().st_mtime)[-4:]
-            for path in candidates:
+            candidates = []
+            try:
+                for path in self.root.glob(f'*/*/*/*-{pid}-t0-*.log'):
+                    try:
+                        stat = path.stat()
+                    except OSError:
+                        continue  # A log can rotate between glob() and stat().
+                    candidates.append((stat.st_mtime, path, stat.st_size))
+            except OSError:
+                pass
+            candidates = sorted(candidates, key=lambda item:item[0])[-4:]
+            for _, path, size in candidates:
                 if path not in self.files:
-                    self.files[path] = {'offset':max(0,path.stat().st_size-8*1024*1024), 'partial':b'', 'new':True}
-            self.files = {p:v for p,v in self.files.items() if p in candidates}
+                    self.files[path] = {'offset':max(0,size-8*1024*1024), 'partial':b'', 'new':True}
+            paths = {item[1] for item in candidates}
+            self.files = {p:v for p,v in self.files.items() if p in paths}
             self.next_scan = now + 2
         for path, state in self.files.items():
             try:

@@ -42,3 +42,15 @@ function Get-CodexWindowProcess {
   Where-Object {$_.MainWindowHandle -ne 0 -and $_.Path -match 'OpenAI[.\\].*Codex|OpenAI.Codex|[\\/]Codex[\\/]'} |
   Select-Object -First 1
 }
+function Get-MonitorReaderAction([bool]$running,[bool]$exited,[double]$nowMs,[double]$startedMs,[double]$heartbeatMs,[double]$retryAtMs) {
+ if ($nowMs -lt $retryAtMs) {return 'wait'}
+ if (-not $running) {return 'start'}
+ if ($exited) {return 'restart'}
+ if ($heartbeatMs -ge $startedMs) {
+  if ($nowMs-$heartbeatMs -gt 20000) {return 'restart'}
+ } elseif ($nowMs-$startedMs -gt 45000) {return 'restart'}
+ return 'wait'
+}
+function Get-MonitorReaderRetrySeconds([int]$failures) {
+ return [Math]::Min(30,[Math]::Pow(2,[Math]::Min(5,[Math]::Max(1,$failures))))
+}
