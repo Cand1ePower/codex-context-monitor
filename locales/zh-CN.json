@@ -1,0 +1,15 @@
+{
+ "ContextWindow":"上下文窗口", "CachedInput":"缓存输入", "NewInput":"非缓存输入",
+ "Output":"本次输出（含思考）", "Remaining":"剩余", "CacheHitRate":"缓存命中率",
+ "ModelUsage":"模型使用情况", "Tokens":"Tokens", "Currency":"USD",
+ "Estimate":"API 估算", "PartialEstimate":"API 估算 · 部分未定价", "Unpriced":"未定价",
+ "Waiting":"等待用量记录", "WaitingChat":"等待当前聊天", "NoChat":"当前页面暂无本地聊天",
+ "Indexing":"统计历史用量…", "Calculating":"统计中…", "Compacted":"等待压缩后的新记录",
+ "Interrupted":"数据读取中断", "RestartRequired":"数据读取中断，请重新启动",
+ "Stale":"数据读取中断，显示最后记录", "CurrentChat":"当前聊天：{0}\n点击展开；点击弹窗外收起",
+ "Drag":"拖动调整位置", "SpeedHelp":"最近响应的估算均速，含思考 Token；随用量记录更新。",
+ "CacheHelp":"缓存输入 Token ÷ 全部输入 Token。",
+ "ModelHelp":"{0}\n输入 {1} · 缓存 {2}\n输出（含思考） {3}\n累计 {4} Tokens · {5} 次响应",
+ "EstimateHelp":"按官方 API Token 价格估算，美元；价格核对于 {0}。\n未记录服务档位时按 Standard；未记录缓存保留期时按 30 分钟。\n包含重复输入、缓存和思考输出；不含工具费用、订阅费用及独立子聊天。\n点击查看官方定价。",
+ "UnknownModel":"未知模型", "MissingPython":"找不到 Python 3，请先安装 Python 或在 settings.json 指定 python 路径。"
+}

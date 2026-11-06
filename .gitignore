@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+preview/
+/preview-*.png
+/state.json
+/owner.json
+/selection.json
+/placement.json
+/settings.json
+*.log
+*.request
+*.zip

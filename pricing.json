@@ -1,0 +1,13 @@
+{
+  "currency": "USD",
+  "checked_at": "2026-11-06",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "basis": "API text tokens, Standard when service tier is absent; 30-minute cache writes when retention is absent",
+  "models": {
+    "gpt-6-astra": {"name":"GPT-6 Astra", "input":10, "cached":1, "write":12.5, "write_12h":25, "output":50, "long_threshold":272000, "source":"https://developers.openai.com/api/docs/models/gpt-6-astra"},
+    "gpt-6.1-sol": {"name":"GPT-6.1 Sol", "input":2, "cached":0.1, "write":2.5, "write_12h":5, "output":10, "long_threshold":272000, "source":"https://developers.openai.com/api/docs/models/gpt-6.1-sol"},
+    "gpt-6.1-terra": {"name":"GPT-6.1 Terra", "input":1, "cached":0.05, "write":1.25, "write_12h":2.5, "output":5, "long_threshold":272000, "source":"https://developers.openai.com/api/docs/models/gpt-6.1-terra"},
+    "gpt-6-sol": {"name":"GPT-6 Sol", "input":2, "cached":0.2, "write":2.5, "write_12h":5, "output":10, "long_threshold":272000, "source":"https://developers.openai.com/api/docs/models/gpt-6-sol"},
+    "gpt-6-luna": {"name":"GPT-6 Luna", "input":0.1, "cached":0.01, "write":0.125, "write_12h":0.25, "output":0.5, "long_threshold":272000, "source":"https://developers.openai.com/api/docs/models/gpt-6-luna"}
+  }
+}

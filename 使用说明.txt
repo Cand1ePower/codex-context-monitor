@@ -1,0 +1,8 @@
+Codex Context Monitor
+
+运行 Install.ps1 安装并启用随 Codex 启动。
+双击 Launch.vbs 可临时启动；Quit.ps1 退出整个工具；Uninstall.ps1 取消自启动。
+
+界面自动跟随 Windows 显示语言，无托盘图标。
+完整中文说明：README.zh-CN.md
+English documentation: README.md
