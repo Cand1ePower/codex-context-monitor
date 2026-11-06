@@ -10,12 +10,9 @@ Its floating status bar shows context usage, estimated token speed, prompt cache
 
 ![Full Codex window with the default compact status bar](docs/images/collapsed.png)
 
-<details>
-<summary>See the full window with the details panel expanded</summary>
+**Expanded view**
 
 ![Full Codex window after expanding the details panel](docs/images/expanded.png)
-
-</details>
 
 Illustrations use sample chats and metrics. The overlay is rendered from the actual application.
 

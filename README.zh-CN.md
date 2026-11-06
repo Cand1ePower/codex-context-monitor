@@ -10,12 +10,9 @@
 
 ![默认收起状态的完整 Codex 窗口](docs/images/collapsed.png)
 
-<details>
-<summary>查看点击后展开详情的完整窗口演示</summary>
+**展开状态**
 
 ![点击后展开详情的完整 Codex 窗口](docs/images/expanded.png)
-
-</details>
 
 示意图使用示例聊天和用量，悬浮界面由实际程序渲染。
 
