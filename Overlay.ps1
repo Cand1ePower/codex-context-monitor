@@ -129,7 +129,7 @@ function Set-Usage($data) {
   $ui.UsageText.Text = if (-not $ready) {L 'Indexing'} elseif ($data.error) {if (-not $data.thread_id) {L 'NoChat'} else {L 'Waiting'}} elseif ($data.compacted) {L 'Compacted'} else {L 'Waiting'}
  }
  $cache = if ($null -ne $data.cache_percent -and $ready) {'{0:0.0}%' -f $data.cache_percent} else {'—'}
- $speed = if ($null -ne $data.speed_tps -and $ready) {'≈ ' + ('{0:0.0}' -f $data.speed_tps) + ' t/s'} else {'— t/s'}
+ $speed = if ($data.running -eq $true -and $null -ne $data.speed_tps -and $ready) {'≈ ' + ('{0:0.0}' -f $data.speed_tps) + ' t/s'} else {'--/s'}
  $ui.CacheSmall.Text = (L 'CacheHitRate') + ' ' + $cache; $ui.CacheLarge.Text = $cache
  $ui.SpeedSmall.Text = $speed; $ui.SpeedLarge.Text = $speed
  $ui.CachedValue.Text = Format-Tokens $data.usage.cached_input_tokens
@@ -165,6 +165,7 @@ function Update-Age {
  $data = $script:lastState
  if ($null -eq $data) { return }
  if ($script:recovering -or ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()-$data.heartbeat_ms) -gt 6000) {
+  $ui.SpeedSmall.Text='--/s';$ui.SpeedLarge.Text='--/s'
   $ui.UsageText.Text = L 'Recovering'
   $ui.ExpandButton.ToolTip = L 'Stale'
  }
@@ -311,7 +312,7 @@ if ($RenderPreview) {
   $stream=[IO.File]::Create((Join-Path $PreviewOutput ('preview-'+$mode+'.png')))
   try {$encoder.Save($stream)} finally {$stream.Dispose()}
  }
- @{percent=$ui.PercentLarge.Text;modelRows=$ui.ModelsList.Items.Count;cost=$ui.TotalCost.Text;panelHeight=$ui.Details.ActualHeight;outsideClickCloses=(-not $ui.DetailsPopup.StaysOpen)} | ConvertTo-Json -Compress
+ @{percent=$ui.PercentLarge.Text;modelRows=$ui.ModelsList.Items.Count;cost=$ui.TotalCost.Text;speed=$ui.SpeedSmall.Text;expandedSpeed=$ui.SpeedLarge.Text;panelHeight=$ui.Details.ActualHeight;outsideClickCloses=(-not $ui.DetailsPopup.StaysOpen)} | ConvertTo-Json -Compress
  $mutex.ReleaseMutex();$mutex.Dispose();exit 0
 }
 

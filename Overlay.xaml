@@ -24,7 +24,7 @@
     <Button Name="ExpandButton" Grid.Column="1" HorizontalContentAlignment="Stretch" Padding="4,0">
      <Grid Width="224"><Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="70"/><ColumnDefinition Width="1"/><ColumnDefinition/></Grid.ColumnDefinitions>
       <Grid Name="RingHost" Width="14" Height="14" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-      <TextBlock Name="SpeedSmall" Grid.Column="1" Text="— t/s" FontSize="11" Foreground="#BDBDC6" VerticalAlignment="Center" Margin="4,0,0,0"/>
+      <TextBlock Name="SpeedSmall" Grid.Column="1" Text="--/s" FontSize="11" Foreground="#BDBDC6" VerticalAlignment="Center" Margin="4,0,0,0"/>
       <Border Grid.Column="2" Height="10" Background="#56565F" VerticalAlignment="Center"/>
       <TextBlock Name="CacheSmall" Grid.Column="3" Margin="10,0,0,0" Text="缓存 —" FontSize="11" Foreground="#BDBDC6" VerticalAlignment="Center"/>
      </Grid>
@@ -71,7 +71,7 @@
      <Grid Margin="0,9,0,13"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="24"/><ColumnDefinition/></Grid.ColumnDefinitions>
       <StackPanel>
        <TextBlock Name="LabelResponseSpeed" Text="Response speed" FontSize="10.5" Foreground="#A3A3AE"/>
-       <TextBlock Name="SpeedLarge" Text="— t/s" FontSize="19" FontWeight="SemiBold" Margin="0,2,0,0"/>
+       <TextBlock Name="SpeedLarge" Text="--/s" FontSize="19" FontWeight="SemiBold" Margin="0,2,0,0"/>
       </StackPanel>
       <Border Grid.Column="1" Width="1" Height="29" Background="#38383E" VerticalAlignment="Center"/>
       <StackPanel Grid.Column="2" HorizontalAlignment="Right">

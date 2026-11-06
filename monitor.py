@@ -16,6 +16,7 @@ from collections import OrderedDict
 from active_chat import ActiveChat, read_owner
 from billing import BillingLedger
 
+SPEED_MAX_AGE_MS = 5000
 
 def stamp_ms(value):
     try:
@@ -101,12 +102,19 @@ class UsageReader:
         elif kind == "event_msg" and subkind == "task_started":
             self.running = True
             self.pending_start = None
+            self.speed = self.speed_ms = self.speed_duration_ms = None
             self.set_window(payload.get("model_context_window"))
         elif kind == "event_msg" and subkind in ("task_complete", "task_completed", "turn_aborted"):
             self.running = False
             self.pending_start = None
+            self.speed = self.speed_ms = self.speed_duration_ms = None
         elif kind == "event_msg" and subkind == "item_completed":
             item = payload.get("item") or {}
+            if str(item.get("type", "")).lower() == "agentmessage" and item.get("phase") == "final_answer":
+                self.running = False
+                self.pending_start = None
+                self.speed = self.speed_ms = self.speed_duration_ms = None
+                return
             if str(item.get("type", "")).lower() not in ("reasoning", "agentmessage"):
                 return
             begin = payload.get("started_at_ms")
@@ -188,6 +196,8 @@ class UsageReader:
         now_ms = now_ms if now_ms is not None else time.time() * 1000
         usage = self.usage
         total = usage["total_tokens"] if usage else None
+        speed_fresh = self.speed_ms is not None and 0 <= now_ms-self.speed_ms <= SPEED_MAX_AGE_MS
+        speed = self.speed if self.running is True and speed_fresh else None
         return {
             "model": self.model,
             "window": self.window,
@@ -195,9 +205,9 @@ class UsageReader:
             "percent": 100 * total / self.window if total is not None and self.window else None,
             "remaining": max(0, self.window - total) if total is not None and self.window else None,
             "cache_percent": 100 * usage["cached_input_tokens"] / usage["input_tokens"] if usage and usage["input_tokens"] else None,
-            "speed_tps": self.speed,
-            "speed_kind": "recent_response_estimate" if self.speed is not None else "unavailable",
-            "speed_duration_ms": self.speed_duration_ms,
+            "speed_tps": speed,
+            "speed_kind": "recent_response_estimate" if speed is not None else "unavailable",
+            "speed_duration_ms": self.speed_duration_ms if speed is not None else None,
             "sampled_at_ms": self.usage_ms,
             "age_seconds": max(0, int((now_ms - self.usage_ms) / 1000)) if self.usage_ms else None,
             "running": self.running,
