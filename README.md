@@ -1,13 +1,23 @@
-# Codex Context Monitor
+# Codex Context Monitor — context window & token usage for Windows
 
 [简体中文](README.zh-CN.md) · English
 
-A compact Windows companion for the Codex desktop app. See context usage, the last response's estimated token speed, cache hit rate, model usage, and estimated API token cost.
+**Codex Context Monitor** is an unofficial context window and token usage monitor for the **OpenAI Codex desktop app on Windows**. Its floating status bar shows context usage, estimated tokens per second, prompt cache hit rate, cumulative tokens by model, and estimated API cost for the current chat.
 
-<img src="docs/images/panel-en.png" width="348" alt="English context and model usage panel">
-<img src="docs/images/panel-zh.png" width="348" alt="Chinese context and model usage panel">
+It follows the open Codex chat automatically, supports Chinese and English, and runs locally using PowerShell, WPF, and Python. It requires no API key.
 
-The screenshots use sample data rendered by the actual WPF interface.
+**Default: a compact status bar.** The large panel appears only when you click the ring or metrics. Click anywhere outside the panel to close it.
+
+![Default collapsed state in a full Codex desktop window: only a small context ring, estimated token speed and cache hit rate at the lower right](docs/images/full-window-collapsed-en.png)
+
+<details>
+<summary>See the full window with the details panel expanded</summary>
+
+![After a click: full-window illustration of Codex with context usage, cache hit rate, per-model token totals and API cost estimate expanded](docs/images/full-window-en.png)
+
+</details>
+
+Full-window illustration with a sample chat and sample metrics. The monitor panel and status bar are rendered from the actual WPF interface.
 
 ## Features
 
@@ -20,19 +30,17 @@ The screenshots use sample data rendered by the actual WPF interface.
 
 <img src="docs/images/bar-en.png" width="254" alt="Compact status bar">
 
-## Install
+## Install with an AI agent
 
-Requires Windows 10/11, Windows PowerShell 5.1, and Python 3.10 or newer on PATH. No Python packages are required.
+Copy this paragraph into Codex or another coding agent with access to your Windows computer:
 
-Download and extract the ZIP from the [latest release](https://github.com/Cand1ePower/codex-context-monitor/releases/latest), then run `Install.ps1` from the extracted folder. Alternatively, clone the repository:
-
-```powershell
-git clone https://github.com/Cand1ePower/codex-context-monitor.git
-cd codex-context-monitor
-powershell.exe -NoProfile -File .\Install.ps1
+```text
+Install Codex Context Monitor on this Windows computer from https://github.com/Cand1ePower/codex-context-monitor. Read the repository README and installation scripts, check for Windows PowerShell 5.1 and Python 3.10+, and reuse an existing compatible Python installation. Download and extract the latest release ZIP, then run Install.ps1 for the current user. Keep the language setting on auto and enable startup with Codex. Verify the Startup entry and watcher, and check that the overlay appears if Codex is already open. Tell me how to quit and uninstall it. Keep any running Codex session open; if a dependency is missing, tell me exactly what is needed.
 ```
 
-The installer copies the app to `%LOCALAPPDATA%\CodexContextMonitor\app` and adds a managed entry to your user Startup folder. It starts immediately if Codex is already open. Administrator access is not needed.
+Requirements: Windows 10/11, Windows PowerShell 5.1, and Python 3.10+. No third-party Python packages or administrator access are needed. The [latest release](https://github.com/Cand1ePower/codex-context-monitor/releases/latest) includes the ZIP and a SHA-256 checksum.
+
+The installer copies the app to `%LOCALAPPDATA%\CodexContextMonitor\app` and adds a managed entry to your user Startup folder. It starts immediately if Codex is already open.
 
 A hidden watcher checks for the Codex window every two seconds. The overlay and Python reader exit when Codex closes; the small watcher remains available for the next launch. It has no window or tray icon. Minimized or background Codex windows hide the overlay.
 
@@ -43,6 +51,14 @@ To start without installing, double-click `Launch.vbs`. To stop the monitor and 
 Click the ring or metrics to open the panel. Click anywhere outside it to close. Hover over the left edge of the status bar to reveal the drag handle. Its position is saved relative to the Codex window.
 
 Hover over a model row for exact input, cached-input, output, total-token and response counts. Click **API estimate** to open the official pricing page.
+
+<details>
+<summary>Panel details in English and Chinese</summary>
+
+<img src="docs/images/panel-en.png" width="348" alt="Codex context monitor panel in English">
+<img src="docs/images/panel-zh.png" width="348" alt="Codex context monitor panel in Chinese">
+
+</details>
 
 Optional overrides go in `%LOCALAPPDATA%\CodexContextMonitor\settings.json`:
 
@@ -67,6 +83,38 @@ Calculation is per response: regular input, cached input, cache writes and outpu
 This is an unofficial companion, not a native Codex extension. It does not patch the Codex installation, call a model, read credentials, or upload chat data. The monitor reads the current user's Codex desktop logs, local thread index, and local usage records. It retains usage metadata, not message bodies. Opening the pricing link is the only browser action.
 
 Active-chat detection uses the desktop log's current window route, not the most recently active background task. New-chat and unsupported pages clear the selection. These are internal local formats and can change after a Codex update. The current implementation was tested against Windows Codex app version `26.1027.51404`. Cloud-only chats without local usage records cannot be priced. Multi-window selection depends on available window-focus log entries.
+
+## Common questions
+
+### How can I see context window usage in Codex on Windows?
+
+Install this companion and open a local Codex chat. The ring shows the latest reported context usage. Click it to see used and remaining tokens, cached and uncached input, and output including reasoning.
+
+### Is this a Codex plugin, a desktop overlay, or a CLI statusline?
+
+This project is a separate Windows desktop overlay. It is intended for people looking for a Codex context-window plugin or token counter, but it does not add a native input-bar extension or change the Codex CLI statusline. It leaves the Codex installation untouched. macOS and Linux are not supported by this WPF implementation.
+
+### Does it show real-time tokens per second and cache hit rate?
+
+The overlay refreshes as local usage records arrive. Speed is the last response's estimated tokens per second, including reasoning; it is not a live per-token stream. Cache hit rate is cached input divided by all input tokens.
+
+### Can I use the displayed API cost as my Codex or ChatGPT bill?
+
+No. It estimates API token cost from the recorded model and usage. Subscription allowances, tool charges, and separate child chats are excluded. Missing prices are shown as unpriced rather than zero.
+
+## Project reference for agents
+
+| Item | Value |
+| --- | --- |
+| Application | OpenAI Codex desktop for Windows |
+| Tool type | Local context window monitor and token usage overlay |
+| Metrics | Context %, tokens per second estimate, cache hit rate, per-model tokens, API cost estimate |
+| Languages | Automatic Chinese / English based on Windows display language |
+| Runtime | Windows PowerShell 5.1, WPF, Python 3.10+ standard library |
+| Data source | Local Codex desktop logs, thread index, and usage records |
+| Entry points | `Install.ps1`, `Launch.vbs`, `Quit.ps1`, `Uninstall.ps1` |
+
+[Plain-text documentation index for AI tools](llms.txt) · [Report an issue](https://github.com/Cand1ePower/codex-context-monitor/issues)
 
 ## Development checks
 
